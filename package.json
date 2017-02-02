@@ -1,0 +1,21 @@
+{
+  "name": "allex_facebookmessengerbotservice",
+  "version": "0.1.0",
+  "description": "FacebookMessengerBotService",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url" : "git@gitlab.hers.rs:allex_services/facebookmessengerbot"
+  },
+  "keywords": [
+    "ecosystem:allex",
+    "Service",
+    "FacebookMessengerBot"
+  ],
+  "author": "HERS Belgrade",
+  "license": "ISC"
+}
+
