@@ -38,10 +38,6 @@ function createFacebookMessengerBotService(execlib, ParentService) {
     err = null;
   }
 
-  FacebookMessengerBotService.prototype.hitMe = function(url,req,res){
-    res.end('lol');
-  };
-
   function onModulesLoaded(verifytoken,page_access_token,respondermodule){
     var responderClass = respondermodule(FacebookMessengerResponder);
     var ret = function(url, req, res){
