@@ -4,7 +4,10 @@ function createMessageTypes(execlib){
     ReceivePayload: require('./receivepayload.js')(execlib),
     SendPayload: require('./sendpayload.js')(execlib),
     Message: require('./message.js')(execlib),
-    Recipient : require('./recipient.js')(execlib)
+    Attachment: require('./attachment.js')(execlib),
+    Recipient : require('./recipient.js')(execlib),
+    ThreadSetting : require('./threadsetting.js')(execlib),
+    InProcessRequest : require('./inprocessrequest.js')(execlib)
   };
 }
 

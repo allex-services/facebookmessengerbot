@@ -16,6 +16,9 @@
     "FacebookMessengerBot"
   ],
   "author": "HERS Belgrade",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "allex_cacheinvalidatorlowlevellib": "1.x"
+  }
 }
 

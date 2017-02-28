@@ -3,54 +3,36 @@
 function createReceivePayload(execlib){
 
   //https://developers.facebook.com/docs/messenger-platform/webhook-reference#entry
-  function Entry(prophash){
+  function Message(prophash,message){
     this.page_id = prophash.id;
     this.timestamp = prophash.time;
-    this.messaging = this.createMessaging(prophash.messaging); //TODO !!! - Very important: this can be array of messaging, I don't know how to handle array of messages, so this need to be revisited later!
+    //https://developers.facebook.com/docs/messenger-platform/webhook-reference#messaging
+    this.message = message; //TODO !!! - Very important: this can be array of messaging, I don't know how to handle array of messages, so this need to be revisited later!
   }
-  Entry.prototype.destroy = function(){
-    this.entries.forEach(destroyMessaging);
-    this.entries = null;
+  Message.prototype.destroy = function(){
+    this.message = null;
     this.timestamp = null;
     this.page_id = null;
   };
-  Entry.prototype.createMessaging = function(messagingArry){
-    var ret = [];
-    messagingArry.forEach(createMessaging.bind(null,ret));
-    return ret;
-  };
-  function createMessaging(arry,messaging){
-    arry.push(new Messaging(messaging));
-  }
-  function destroyMessaging(messaging){
-    messaging.destroy();
-  }
-
-  //https://developers.facebook.com/docs/messenger-platform/webhook-reference#messaging
-  function Messaging(prophash){
-    this.sender_id = prophash.sender.id;
-    this.recipient_id = prophash.recipient.id;
-    this.additionalFields = null; //TODO add: Additional callback specific fields
-  }
-  Messaging.prototype.destroy = function(){
-  };
-
   function ReceivePayload(jsonreq){
     this.entries = this.createEntries(jsonreq.entry); //Array containing event data - Array of entry
   }
   ReceivePayload.prototype.destroy = function(){
-    this.entries.forEach(destroyEntry);
+    this.entries.forEach(destroyMessage);
     this.entries = null;
   };
   ReceivePayload.prototype.createEntries = function(entries){
     var ret = [];
-    entries.forEach(createEntry.bind(null,ret));
+    entries.forEach(createMessage.bind(null,ret));
     return ret;
   };
-  function createEntry(arry,entry){
-    arry.push(new Entry(entry));
+  function createMessage(arry,entry){
+    entry.messaging.forEach(createMessageWithMessage.bind(null,arry,entry));
   }
-  function destroyEntry(entry){
+  function createMessageWithMessage(arry,entry,message){
+    arry.push(new Message(entry,message));
+  }
+  function destroyMessage(entry){
     entry.destroy();
   }
 
