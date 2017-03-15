@@ -25,7 +25,8 @@ function createFacebookMessengerBotService(execlib, ParentService) {
     this.job_interval = prophash.job_interval || 15 * 1000;
     this.cacheInvalidator = new CacheInvalidator(this.cache, this.job_interval, prophash.cache_max_age || 2*4*60, prophash.cache_prefix || 'REMOVABLE');
     this.favoritesMechanics = null;
-    this.loadModules(prophash.verifytoken, prophash.page_access_token, prophash.modulehandler,prophash.favoriteshandler).then(
+    this.subscribeMechanics = null;
+    this.loadModules(prophash.verifytoken, prophash.page_access_token, prophash.modulehandler,prophash.favoriteshandler, prophash.subscribehandler).then(
       this.onCreatedListenerMethod.bind(this)
     );
     this.doCronJob();
@@ -35,6 +36,7 @@ function createFacebookMessengerBotService(execlib, ParentService) {
   RemoteServiceListenerServiceMixin.addMethods(FacebookMessengerBotService);
   
   FacebookMessengerBotService.prototype.__cleanUp = function() {
+    this.subscribeMechanics = null;
     this.favoritesMechanics = null;
     this.cacheInvalidator = null;
     this.job_interval = null;
@@ -56,12 +58,13 @@ function createFacebookMessengerBotService(execlib, ParentService) {
     err = null;
   }
 
-  function onModulesLoaded(verifytoken,page_access_token,respondermodule,favoritesmodule){
+  function onModulesLoaded(verifytoken,page_access_token,respondermodule,favoritesmodule,subscribemodule){
     var responderClass = respondermodule(FacebookMessengerResponder);
     this.favoritesMechanics = new favoritesmodule.Mechanics('favorites.db');
+    this.subscribeMechanics = new subscribemodule.Mechanics('subscribers.db');
     var ret = function(url, req, res){
       if (!!req.inprocess_request){ //InProcess request
-        FacebookMessengerResponder.inProcessFactory(req, responderClass, this.cache, this.favoritesMechanics, verifytoken, page_access_token);
+        FacebookMessengerResponder.inProcessFactory(req, responderClass, this.cache, this.favoritesMechanics, this.subscribeMechanics, verifytoken, page_access_token);
         return;
       }
       if (!responderClass){
@@ -70,7 +73,7 @@ function createFacebookMessengerBotService(execlib, ParentService) {
         return;
       }
       this.extractRequestParams(url, req).then(
-        FacebookMessengerResponder.factory.bind(null,res,responderClass,this.cache,this.favoritesMechanics,verifytoken,page_access_token)
+        FacebookMessengerResponder.factory.bind(null,res,responderClass,this.cache,this.favoritesMechanics,this.subscribeMechanics,verifytoken,page_access_token)
       ).catch(
         catchHelper.bind(null,res)
       );
@@ -82,8 +85,15 @@ function createFacebookMessengerBotService(execlib, ParentService) {
     return q(true);
   }
 
-  FacebookMessengerBotService.prototype.loadModules = function(verifytoken, page_access_token, modulehandlername, favoriteshandlername){
-    return execlib.loadDependencies('client', [modulehandlername,favoriteshandlername], onModulesLoaded.bind(this,verifytoken,page_access_token));
+  FacebookMessengerBotService.prototype.loadModules = function(verifytoken, page_access_token, modulehandlername, favoriteshandlername, subscribehandlername){
+    return execlib.loadDependencies('client',
+      [
+        modulehandlername,
+        favoriteshandlername,
+        subscribehandlername
+      ],
+      onModulesLoaded.bind(this,verifytoken,page_access_token)
+    );
   };
 
   FacebookMessengerBotService.prototype.propertyHashDescriptor = {

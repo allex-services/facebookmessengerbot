@@ -8,16 +8,18 @@ function createFacebookMessengerResponder (execlib) {
   var messageAPIEndpoint = facebookAPIEndpoint + '/me/messages';
   var threadSettingsAPIEndpoint = facebookAPIEndpoint + '/me/thread_settings';
 
-  function FacebookMessengerResponder (res, request, cache, favorites, verify_token, page_access_token) {
+  function FacebookMessengerResponder (res, request, cache, favorites, subscribe, verify_token, page_access_token) {
     this.verify_token = verify_token;
     this.page_access_token = page_access_token;
     this.res = res;
     this.incomingRequest = request;
     this.cache = cache;
     this.favorites = favorites;
+    this.subscribe = subscribe;
     this.process();
   }
   FacebookMessengerResponder.prototype.destroy = function () {
+    this.subscribe = null;
     this.favorites = null;
     this.cache = null;
     this.incomingRequest = null;
@@ -25,15 +27,15 @@ function createFacebookMessengerResponder (execlib) {
     this.page_access_token = null;
     this.verify_token = null;
   };
-  function processJSONReq(res, jsonReq, cache, favorites, verify_token, page_access_token, responderClass) {
+  function processJSONReq(res, jsonReq, cache, favorites, subscribe, verify_token, page_access_token, responderClass) {
     var requestArry = createRequestArry(jsonReq);
     if (!lib.isArray(requestArry)){
       return;
     }
-    requestArry.forEach(createRequest.bind(null, responderClass, res, cache, favorites, verify_token, page_access_token));
+    requestArry.forEach(createRequest.bind(null, responderClass, res, cache, favorites, subscribe, verify_token, page_access_token));
   }
-  function createRequest(responderClass,res,cache,favorites,verify_token,page_access_token,req){
-    new responderClass(res,req,cache,favorites,verify_token,page_access_token);
+  function createRequest(responderClass,res,cache,favorites,subscribe,verify_token,page_access_token,req){
+    new responderClass(res,req,cache,favorites,subscribe,verify_token,page_access_token);
   }
   function createRequestArry(jsonReq){
     //this method ALWAYS return array
@@ -130,7 +132,7 @@ function createFacebookMessengerResponder (execlib) {
   //to override
   FacebookMessengerResponder.prototype.process = function () {
   };
-  FacebookMessengerResponder.factory = function (res, responderClass, cache, favorites, verify_token, page_access_token, req) {
+  FacebookMessengerResponder.factory = function (res, responderClass, cache, favorites, subscribe, verify_token, page_access_token, req) {
     var jsonReq;
     try {
       if (lib.isString(req)){
@@ -138,15 +140,15 @@ function createFacebookMessengerResponder (execlib) {
       }else{
         jsonReq = req;
       }
-      processJSONReq(res, jsonReq, cache, favorites, verify_token, page_access_token, responderClass);
+      processJSONReq(res, jsonReq, cache, favorites, subscribe, verify_token, page_access_token, responderClass);
     } catch(e) {
       console.error(e);
       res.end('{}');
     }
   };
-  FacebookMessengerResponder.inProcessFactory = function (jsonReq, responderClass, cache, favorites, verify_token, page_access_token) {
+  FacebookMessengerResponder.inProcessFactory = function (jsonReq, responderClass, cache, favorites, subscribe, verify_token, page_access_token) {
     try {
-      new responderClass(null,new FacebookMessengerResponder.MessageTypes.InProcessRequest(jsonReq),cache,favorites,verify_token,page_access_token);
+      new responderClass(null,new FacebookMessengerResponder.MessageTypes.InProcessRequest(jsonReq),cache,favorites,subscribe,verify_token,page_access_token);
     } catch(e) {
       console.error(e);
     }
