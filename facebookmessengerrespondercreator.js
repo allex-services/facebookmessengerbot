@@ -112,7 +112,8 @@ function createFacebookMessengerResponder (execlib) {
     };
     var job = new qlib.PromiseExecutorJob(jobArr);
     job.go().then(
-      this.onOperationSuccess.bind(this)
+      this.onOperationSuccess.bind(this),
+      this.onOperationFailed.bind(this)
     );
   };
   FacebookMessengerResponder.prototype.onOperationSuccess = function(res){
