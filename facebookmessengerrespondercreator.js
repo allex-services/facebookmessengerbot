@@ -120,6 +120,7 @@ function createFacebookMessengerResponder (execlib) {
     if (res.statusCode !== 200){
       console.log('ERROR on Sending message ->>> ',arguments);
     }
+    console.log('AJDE RES',res);
     this.res.end('{}');
     this.destroy();
   };
