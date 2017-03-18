@@ -22,6 +22,9 @@ function createFacebookMessengerBotService(execlib, ParentService) {
     this.verifytoken = prophash.verifytoken;
     this.page_access_token = prophash.page_access_token;
     this.cache = new lib.Map();
+    if (!!prophash.default_country){
+      this.cache.add('default_country',prophash.default_country);
+    }
     this.job_interval = prophash.job_interval || 15 * 1000;
     this.cacheInvalidator = new CacheInvalidator(this.cache, this.job_interval, prophash.cache_max_age || 2*4*60, prophash.cache_prefix || 'REMOVABLE');
     this.favoritesMechanics = null;
