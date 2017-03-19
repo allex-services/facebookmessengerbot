@@ -121,13 +121,17 @@ function createFacebookMessengerResponder (execlib) {
       console.log('ERROR on Sending message ->>> ',arguments);
     }
     console.log('AJDE RES',res);
-    this.res.end('{}');
+    if (!!this.res){
+      this.res.end('{}');
+    }
     this.destroy();
   };
   FacebookMessengerResponder.prototype.onOperationFailed = function(){
-    this.res.statusCode = 403;
     var errorMsg = 'Error on message deilvery from Facebook Messenger API'; 
-    this.res.end(errorMsg);
+    if (!!this.res){
+      this.res.statusCode = 403;
+      this.res.end(errorMsg);
+    }
     console.log('ERROR: ' + errorMsg);
     this.destroy();
   };
