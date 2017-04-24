@@ -8,14 +8,15 @@ function createFacebookMessengerResponder (execlib) {
   var messageAPIEndpoint = facebookAPIEndpoint + '/me/messages';
   var threadSettingsAPIEndpoint = facebookAPIEndpoint + '/me/thread_settings';
 
-  function FacebookMessengerResponder (res, request, cache, favorites, subscribe, verify_token, page_access_token) {
-    this.verify_token = verify_token;
-    this.page_access_token = page_access_token;
+  function FacebookMessengerResponder (res, request, botService) {
     this.res = res;
+    this.botService = botService;
+    this.verify_token = botService.verifytoken;
+    this.page_access_token = botService.page_access_token;
+    this.cache = botService.cache;
+    this.favorites = botService.favoritesMechanics;
+    this.subscribe = botService.subscribeMechanics;
     this.incomingRequest = request;
-    this.cache = cache;
-    this.favorites = favorites;
-    this.subscribe = subscribe;
     this.process();
   }
   FacebookMessengerResponder.prototype.destroy = function () {
@@ -23,19 +24,20 @@ function createFacebookMessengerResponder (execlib) {
     this.favorites = null;
     this.cache = null;
     this.incomingRequest = null;
+    this.botService = null;
     this.res = null;
     this.page_access_token = null;
     this.verify_token = null;
   };
-  function processJSONReq(res, jsonReq, cache, favorites, subscribe, verify_token, page_access_token, responderClass) {
+  function processJSONReq(res, jsonReq, botService, responderClass) {
     var requestArry = createRequestArry(jsonReq);
     if (!lib.isArray(requestArry)){
       return;
     }
-    requestArry.forEach(createRequest.bind(null, responderClass, res, cache, favorites, subscribe, verify_token, page_access_token));
+    requestArry.forEach(createRequest.bind(null, responderClass, res, botService));
   }
-  function createRequest(responderClass,res,cache,favorites,subscribe,verify_token,page_access_token,req){
-    new responderClass(res,req,cache,favorites,subscribe,verify_token,page_access_token);
+  function createRequest(responderClass,res,botService,req){
+    new responderClass(res,req,botService);
   }
   function createRequestArry(jsonReq){
     //this method ALWAYS return array
@@ -97,7 +99,7 @@ function createFacebookMessengerResponder (execlib) {
   };
   FacebookMessengerResponder.prototype.sendMessage = function (payload) {
     //payload -> https://developers.facebook.com/docs/messenger-platform/send-api-reference#payload
-    this.makeFBMessageRequest(payload).then(
+    return this.makeFBMessageRequest(payload).then(
       this.onOperationSuccess.bind(this),
       this.onOperationFailed.bind(this)
     );
@@ -111,7 +113,7 @@ function createFacebookMessengerResponder (execlib) {
       jobArr.push(this.makeFBMessageRequest.bind(this,payloadArr[i]));
     };
     var job = new qlib.PromiseExecutorJob(jobArr);
-    job.go().then(
+    return job.go().then(
       this.onOperationSuccess.bind(this),
       this.onOperationFailed.bind(this)
     );
@@ -138,7 +140,7 @@ function createFacebookMessengerResponder (execlib) {
   //to override
   FacebookMessengerResponder.prototype.process = function () {
   };
-  FacebookMessengerResponder.factory = function (res, responderClass, cache, favorites, subscribe, verify_token, page_access_token, req) {
+  FacebookMessengerResponder.factory = function (res, responderClass, botService, req) {
     var jsonReq;
     try {
       if (lib.isString(req)){
@@ -146,15 +148,15 @@ function createFacebookMessengerResponder (execlib) {
       }else{
         jsonReq = req;
       }
-      processJSONReq(res, jsonReq, cache, favorites, subscribe, verify_token, page_access_token, responderClass);
+      processJSONReq(res, jsonReq, botService, responderClass);
     } catch(e) {
       console.error(e);
       res.end('{}');
     }
   };
-  FacebookMessengerResponder.inProcessFactory = function (jsonReq, responderClass, cache, favorites, subscribe, verify_token, page_access_token) {
+  FacebookMessengerResponder.inProcessFactory = function (jsonReq, responderClass, botService) {
     try {
-      new responderClass(null,new FacebookMessengerResponder.MessageTypes.InProcessRequest(jsonReq),cache,favorites,subscribe,verify_token,page_access_token);
+      new responderClass(null,new FacebookMessengerResponder.MessageTypes.InProcessRequest(jsonReq),botService);
     } catch(e) {
       console.error(e);
     }
