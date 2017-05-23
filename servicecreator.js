@@ -36,7 +36,7 @@ function createFacebookMessengerBotService(execlib, ParentService) {
     this.subscribeMechanics = null;
     this.blazeMechanics = null;
     this.findRemoteWithAddress('cdn0');
-    this.loadModules(prophash.verifytoken, prophash.page_access_token, prophash.modulehandler,prophash.favoriteshandler, prophash.subscribehandler, prophash.blazehandler).then(
+    this.loadModules(prophash.verifytoken, prophash.page_access_token, prophash.modulehandler,prophash.favoriteshandler, prophash.subscribehandler, prophash.userdatahandler, prophash.blazehandler).then(
       this.onCreatedListenerMethod.bind(this)
     );
   }
@@ -72,10 +72,11 @@ function createFacebookMessengerBotService(execlib, ParentService) {
     err = null;
   }
 
-  function onModulesLoaded(verifytoken,page_access_token,respondermodule,favoritesmodule,subscribemodule,blazemodule){
+  function onModulesLoaded(verifytoken,page_access_token,respondermodule,favoritesmodule,subscribemodule,userdatamodule,blazemodule){
     var responderClass = respondermodule(FacebookMessengerResponder);
     this.favoritesMechanics = new favoritesmodule.Mechanics('favorites.db');
     this.subscribeMechanics = new subscribemodule.Mechanics('subscribers.db');
+    this.userDataMechanics = new userdatamodule.Mechanics('userdata.db');
     this.blazeMechanics = new blazemodule.Mechanics('blaze.db','blazequeue.db');
     var ret = function(url, req, res){
       if (!!req.inprocess_request){ //InProcess request
@@ -100,12 +101,13 @@ function createFacebookMessengerBotService(execlib, ParentService) {
     return q(true);
   }
 
-  FacebookMessengerBotService.prototype.loadModules = function(verifytoken, page_access_token, modulehandlername, favoriteshandlername, subscribehandlername, blazehandlername){
+  FacebookMessengerBotService.prototype.loadModules = function(verifytoken, page_access_token, modulehandlername, favoriteshandlername, subscribehandlername, userdatahandlername, blazehandlername){
     return execlib.loadDependencies('client',
       [
         modulehandlername,
         favoriteshandlername,
         subscribehandlername,
+        userdatahandlername,
         blazehandlername
       ],
       onModulesLoaded.bind(this,verifytoken,page_access_token)

@@ -16,10 +16,12 @@ function createFacebookMessengerResponder (execlib) {
     this.cache = botService.cache;
     this.favorites = botService.favoritesMechanics;
     this.subscribe = botService.subscribeMechanics;
+    this.userData = botService.userDataMechanics;
     this.incomingRequest = request;
     this.process();
   }
   FacebookMessengerResponder.prototype.destroy = function () {
+    this.userData = null;
     this.subscribe = null;
     this.favorites = null;
     this.cache = null;
