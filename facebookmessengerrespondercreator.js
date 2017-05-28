@@ -58,14 +58,15 @@ function createFacebookMessengerResponder (execlib) {
     this.res.end(JSON.stringify(lib.extend({method:methodName},params)));
     this.destroy();
   };
-  FacebookMessengerResponder.prototype.getUserInfo = function(userId){
+  FacebookMessengerResponder.getUserInfo = function(page_access_token,userId){
     //curl -X GET "https://graph.facebook.com/v2.6/<USER_ID>?fields=first_name,last_name,profile_pic,locale,timezone,gender&access_token=PAGE_ACCESS_TOKEN"
     var userInfoDefer = q.defer();
     var userInfoAPIEndpoint = facebookAPIEndpoint + '/' + userId;
     var fields = 'first_name,last_name,profile_pic,locale,timezone,gender';
+    if (!page_access_token) throw new Error('page_access_token is required parameter!');
     var params = {
       fields : fields,
-      access_token : this.page_access_token
+      access_token : page_access_token
     };
     lib.request(userInfoAPIEndpoint,{
       parameters : params,

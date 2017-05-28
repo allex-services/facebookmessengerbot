@@ -43,6 +43,8 @@ function createFacebookMessengerBotService(execlib, ParentService) {
   
   ParentService.inherit(FacebookMessengerBotService, factoryCreator);
   RemoteServiceListenerServiceMixin.addMethods(FacebookMessengerBotService);
+
+  FacebookMessengerBotService.prototype.getUserInfoFromFacebookGraphAPI = FacebookMessengerResponder.getUserInfo;
   
   FacebookMessengerBotService.prototype.__cleanUp = function() {
     this.blazeMechanics = null;
