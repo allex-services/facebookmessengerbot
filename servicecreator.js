@@ -21,6 +21,7 @@ function createFacebookMessengerBotService(execlib, ParentService) {
   function FacebookMessengerBotService(prophash) {
     ParentService.call(this, prophash);
     RemoteServiceListenerServiceMixin.call(this);
+    this.allowAnonymous = true;
     this.verifytoken = prophash.verifytoken;
     this.page_access_token = prophash.page_access_token;
     this.cache = new lib.Map();
@@ -59,6 +60,7 @@ function createFacebookMessengerBotService(execlib, ParentService) {
     this.cache = null;
     this.page_access_token = null;
     this.verifytoken = null;
+    this.allowAnonymous = null;
     RemoteServiceListenerServiceMixin.prototype.destroy.call(this);
     ParentService.prototype.__cleanUp.call(this);
   };
@@ -100,6 +102,11 @@ function createFacebookMessengerBotService(execlib, ParentService) {
       responderClass = null;
     };
     FacebookMessengerBotService.prototype[verifytoken] = ret;
+    if (!lib.isArray(FacebookMessengerBotService.prototype.anonymousMethods)) {
+      FacebookMessengerBotService.prototype.anonymousMethods = [verifytoken];
+    } else {
+      FacebookMessengerBotService.prototype.anonymousMethods.push(verifytoken);
+    }
     return q(true);
   }
 
