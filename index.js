@@ -2,10 +2,10 @@ function createServicePack(execlib) {
   'use strict';
   return {
     service: {
-      dependencies: ['allex:httpexecutor']
+      dependencies: ['allex_httpexecutorservice']
     },
     sinkmap: {
-      dependencies: ['allex:httpexecutor']
+      dependencies: ['allex_httpexecutorservice']
     }, /*
     tasks: {
       dependencies: []

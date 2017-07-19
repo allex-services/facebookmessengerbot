@@ -1,6 +1,6 @@
 {
   "name": "allex_facebookmessengerbotservice",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "FacebookMessengerBotService",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url" : "git@gitlab.hers.rs:allex_services/facebookmessengerbot"
+    "url": "git@github.com:allex-services/facebookmessengerbot.git"
   },
   "keywords": [
     "ecosystem:allex",
@@ -21,4 +21,3 @@
     "allex_cacheinvalidatorlowlevellib": "1.x"
   }
 }
-
